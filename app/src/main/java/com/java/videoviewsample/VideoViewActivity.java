@@ -2,89 +2,98 @@ package com.java.videoviewsample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Display;
+import android.view.Surface;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.VideoView;
 
 public class VideoViewActivity extends AppCompatActivity {
-    VideoView videoView;
-    ImageView previous;
-    ImageView play;
-    ImageView next;
-    ImageView fullscreen;
-
-    int stopPosition;
+    private MediaController mediaController;
+    private VideoView videoView;
+    private int stopPosition = 0;
+    private String fullScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_view);
         initializeView();
-        onClickListener();
+
+        if (getIntent().hasExtra("fullScreenInd")) {
+            fullScreen = getIntent().getStringExtra("fullScreenInd");
+        }
+        if (getIntent().hasExtra("stopPosition")) {
+            stopPosition = getIntent().getIntExtra("stopPosition", 0);
+        }
+
+        if ("y".equals(fullScreen)) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getSupportActionBar().hide();
+
+            if (isLandScape()) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                mediaController = new FullScreenMediaController(VideoViewActivity.this, videoView);
+            } else {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                mediaController = new MediaController(this);
+            }
+        }
+
+        if (stopPosition == 0) {
+            playMyVideo();
+        } else {
+            onResume();
+        }
 
     }
 
-
     private void initializeView() {
-        previous = findViewById(R.id.previous);
-        play = findViewById(R.id.play);
-        next = findViewById(R.id.next);
-        fullscreen = findViewById(R.id.fullscreen);
         videoView = findViewById(R.id.videoView);
     }
 
-    private void onClickListener() {
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (videoView.isPlaying()) {
-                    play.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
-                    onPause();
-                } else {
-                    if (stopPosition == 0) {
-                        playVideo();
-                    } else {
-                        onResume();
-                    }
-                }
+    private void playMyVideo() {
+        Uri videoUri = Uri.parse("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+        videoView.setVideoURI(videoUri);
 
-            }
-        });
-    }
+        mediaController = new FullScreenMediaController(this, videoView);
+        mediaController.setAnchorView(videoView);
 
-    private void playVideo() {
-        Uri video = Uri.parse("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-        videoView.setVideoURI(video);
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mp.setLooping(true);
-                videoView.start();
-            }
-        });
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (videoView != null && videoView.isPlaying()) {
-            videoView.pause();
-            stopPosition = videoView.getCurrentPosition();
-            play.setImageDrawable(getResources().getDrawable(R.drawable.ic_play));
-        }
+        videoView.setMediaController(mediaController);
+        videoView.start();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        Uri videoUri = Uri.parse("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+        videoView.setVideoURI(videoUri);
+        mediaController = new FullScreenMediaController(this, videoView);
+        mediaController.setAnchorView(videoView);
+        videoView.setMediaController(mediaController);
+
         videoView.seekTo(stopPosition);
-        //vvOnboardingVideos.resume();// this is not working for now - need to investigate
         videoView.start();
-        play.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
+    }
+
+    private boolean isLandScape() {
+        boolean res;
+        Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+        int rotation = display.getRotation();
+
+        if (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) {
+            res = true;
+        } else {
+            res = false;
+        }
+        return res;
     }
 
 
