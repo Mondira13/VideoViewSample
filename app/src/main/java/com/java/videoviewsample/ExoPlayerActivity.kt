@@ -1,10 +1,19 @@
 package com.java.videoviewsample
 
+import android.content.Context
+import android.content.pm.ActivityInfo
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Surface
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -30,12 +39,63 @@ class ExoPlayerActivity : AppCompatActivity(), Player.EventListener  {
 
     private lateinit var simpleExoPlayerView : SimpleExoPlayerView
     private lateinit var progressBar : ProgressBar
+    private lateinit var fullScreenButton : ImageView
+    var fullscreen = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exo_player)
         simpleExoPlayerView = findViewById(R.id.simpleExoPlayerView)
         progressBar = findViewById(R.id.progressBar)
+        fullScreenButton = findViewById(R.id.fullScreenButton)
+
+        onClick()
+    }
+
+    private fun onClick() {
+        fullScreenButton.setOnClickListener {
+            if(isLandScape()){
+                fullScreenButton.setImageDrawable(ContextCompat.getDrawable(this@ExoPlayerActivity, R.drawable.ic_fullscreen))
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+                if (supportActionBar != null) {
+                    supportActionBar!!.show()
+                }
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                val params = simpleExoPlayerView.getLayoutParams()
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT
+                params.height = (200 * applicationContext.resources.displayMetrics.density).toInt()
+                simpleExoPlayerView.setLayoutParams(params)
+                fullscreen = false
+            }else{
+                fullScreenButton.setImageDrawable(ContextCompat.getDrawable(this@ExoPlayerActivity, R.drawable.ic_fullscreen_exit))
+                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+                if (supportActionBar != null) {
+                    supportActionBar!!.hide()
+                }
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                val params: FrameLayout.LayoutParams = simpleExoPlayerView.getLayoutParams() as FrameLayout.LayoutParams
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT
+                params.height = ViewGroup.LayoutParams.MATCH_PARENT
+                simpleExoPlayerView.setLayoutParams(params)
+                fullscreen = true
+            }
+
+        }
+    }
+
+    private fun isLandScape(): Boolean {
+        val res: Boolean
+        val display = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
+        val rotation = display.rotation
+        res = if (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) {
+            true
+        } else {
+            false
+        }
+        return res
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
