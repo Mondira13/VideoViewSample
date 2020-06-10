@@ -17,7 +17,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 
-class MainActivity : AppCompatActivity(), Player.EventListener  {
+class ExoPlayerActivity : AppCompatActivity(), Player.EventListener  {
     private lateinit var simpleExoplayer: SimpleExoPlayer
     private var playbackPosition = 0L
     private val dashUrl = "http://rdmedia.bbc.co.uk/dash/ondemand/bbb/2/client_manifest-separate_init.mpd"
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(), Player.EventListener  {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_exo_player)
         simpleExoPlayerView = findViewById(R.id.simpleExoPlayerView)
         progressBar = findViewById(R.id.progressBar)
     }
@@ -55,19 +55,19 @@ class MainActivity : AppCompatActivity(), Player.EventListener  {
     }
 
     override fun onSeekProcessed() {
-        TODO("Not yet implemented")
+
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onPositionDiscontinuity(reason: Int) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onRepeatModeChanged(repeatMode: Int) {
