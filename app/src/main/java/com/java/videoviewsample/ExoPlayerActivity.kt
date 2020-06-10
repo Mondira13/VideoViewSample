@@ -26,10 +26,11 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 
-class ExoPlayerActivity : AppCompatActivity(), Player.EventListener  {
+class ExoPlayerActivity : AppCompatActivity(), Player.EventListener {
     private lateinit var simpleExoplayer: SimpleExoPlayer
     private var playbackPosition = 0L
     private val dashUrl = "http://rdmedia.bbc.co.uk/dash/ondemand/bbb/2/client_manifest-separate_init.mpd"
+
     private val bandwidthMeter by lazy {
         DefaultBandwidthMeter()
     }
@@ -37,25 +38,29 @@ class ExoPlayerActivity : AppCompatActivity(), Player.EventListener  {
         AdaptiveTrackSelection.Factory(bandwidthMeter)
     }
 
-    private lateinit var simpleExoPlayerView : SimpleExoPlayerView
-    private lateinit var progressBar : ProgressBar
-    private lateinit var fullScreenButton : ImageView
+    private lateinit var simpleExoPlayerView: SimpleExoPlayerView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var fullScreenButton: ImageView
     var fullscreen = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exo_player)
+
+        initializeView()
+        onClickListener()
+    }
+
+    private fun initializeView() {
         simpleExoPlayerView = findViewById(R.id.simpleExoPlayerView)
         progressBar = findViewById(R.id.progressBar)
         fullScreenButton = findViewById(R.id.fullScreenButton)
-
-        onClick()
     }
 
-    private fun onClick() {
+    private fun onClickListener() {
         fullScreenButton.setOnClickListener {
-            if(isLandScape()){
+            if (isLandScape()) {
                 fullScreenButton.setImageDrawable(ContextCompat.getDrawable(this@ExoPlayerActivity, R.drawable.ic_fullscreen))
                 window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
                 if (supportActionBar != null) {
@@ -67,7 +72,7 @@ class ExoPlayerActivity : AppCompatActivity(), Player.EventListener  {
                 params.height = (200 * applicationContext.resources.displayMetrics.density).toInt()
                 simpleExoPlayerView.setLayoutParams(params)
                 fullscreen = false
-            }else{
+            } else {
                 fullScreenButton.setImageDrawable(ContextCompat.getDrawable(this@ExoPlayerActivity, R.drawable.ic_fullscreen_exit))
                 window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
                         or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
