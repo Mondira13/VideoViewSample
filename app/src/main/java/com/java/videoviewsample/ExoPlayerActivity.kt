@@ -118,11 +118,4 @@ class ExoPlayerActivity : AppCompatActivity(), Player.EventListener  {
         simpleExoplayer.prepare(mediaSource)
     }
 
-
-
-
-
-
-
-
 }
