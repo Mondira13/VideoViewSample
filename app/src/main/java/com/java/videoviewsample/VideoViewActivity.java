@@ -53,6 +53,7 @@ public class VideoViewActivity extends AppCompatActivity {
             onResume();
         }
 
+
     }
 
     private void initializeView() {
